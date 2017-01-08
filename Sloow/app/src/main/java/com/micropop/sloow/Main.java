@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,8 +22,11 @@ import android.widget.VideoView;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.R.attr.data;
+import static android.R.attr.handle;
 
 public class Main extends AppCompatActivity {
     public VideoView mVideoView;
@@ -37,7 +41,7 @@ public class Main extends AppCompatActivity {
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
+                mp.setLooping(false);
             }
         });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -108,6 +112,25 @@ public class Main extends AppCompatActivity {
                 mVideoView.setVideoPath(path);
                 mVideoView.requestFocus();
                 mVideoView.start();
+                mVideoView.setOnPreparedListener( new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(final MediaPlayer pMp) {
+                        Timer timer = new Timer();  // applied timer logic for playing video in slow motion
+                        timer.schedule(new TimerTask() {
+
+                            @Override
+                            public void run() {
+                          pMp.setLooping(false);
+                                if (pMp.isPlaying())
+                                    pMp.pause();
+                                else
+                                    pMp.start();
+
+                            }
+                        }, 60, 30);
+                }
+
+                });
 
             }
             catch(Exception ex)
